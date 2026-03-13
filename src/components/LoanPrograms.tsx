@@ -1,46 +1,70 @@
-import { Building, Home, Hammer, TrendingUp, Construction, Building2 } from "lucide-react";
+import {
+  Building,
+  Home,
+  Hammer,
+  TrendingUp,
+  Construction,
+  Building2,
+} from "lucide-react";
 import { useEffect, useRef } from "react";
 
-const programs = [
+type LoanProgramItem = {
+  title?: string;
+  description?: string;
+};
+
+type LoanProgramsProps = {
+  loanPrograms?: LoanProgramItem[];
+};
+
+const fallbackPrograms = [
   {
     icon: Building,
     title: "DSCR Loans",
-    description: "Income-based financing for rental properties with flexible terms and competitive rates.",
-    link: "#"
+    description:
+      "Income-based financing for rental properties with flexible terms and competitive rates.",
+    link: "#",
   },
   {
     icon: TrendingUp,
     title: "Bridge Loans",
-    description: "Short-term financing solutions to bridge gaps in your investment strategy.",
-    link: "#"
+    description:
+      "Short-term financing solutions to bridge gaps in your investment strategy.",
+    link: "#",
   },
   {
     icon: Hammer,
     title: "Fix & Flip",
-    description: "Fast funding for renovation projects with draw schedules tailored to your timeline.",
-    link: "#"
+    description:
+      "Fast funding for renovation projects with draw schedules tailored to your timeline.",
+    link: "#",
   },
   {
     icon: Construction,
     title: "Ground-Up Construction",
-    description: "Comprehensive financing for new construction projects from foundation to completion.",
-    link: "#"
+    description:
+      "Comprehensive financing for new construction projects from foundation to completion.",
+    link: "#",
   },
   {
     icon: Home,
     title: "Mid-Construction",
-    description: "Take over stalled projects or refinance existing construction loans.",
-    link: "#"
+    description:
+      "Take over stalled projects or refinance existing construction loans.",
+    link: "#",
   },
   {
     icon: Building2,
     title: "Commercial DSCR",
-    description: "Specialized financing for commercial real estate investment properties.",
-    link: "#"
-  }
+    description:
+      "Specialized financing for commercial real estate investment properties.",
+    link: "#",
+  },
 ];
 
-export const LoanPrograms = () => {
+const icons = [Building, TrendingUp, Hammer, Construction, Home, Building2];
+
+export const LoanPrograms = ({ loanPrograms }: LoanProgramsProps) => {
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -48,18 +72,27 @@ export const LoanPrograms = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
+            entry.target.classList.add("is-visible");
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
-    const elements = sectionRef.current?.querySelectorAll('.reveal');
+    const elements = sectionRef.current?.querySelectorAll(".reveal");
     elements?.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
   }, []);
+
+  const programs =
+    loanPrograms && loanPrograms.length > 0
+      ? loanPrograms.map((program, index) => ({
+          ...program,
+          icon: icons[index % icons.length],
+          link: "#",
+        }))
+      : fallbackPrograms;
 
   return (
     <section ref={sectionRef} className="py-24 bg-gray-50">
@@ -69,10 +102,11 @@ export const LoanPrograms = () => {
             Loan Programs
           </h2>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-            Flexible financing solutions designed for real estate investors at every stage
+            Flexible financing solutions designed for real estate investors at
+            every stage
           </p>
         </div>
-        
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 stagger-children">
           {programs.map((program, index) => (
             <div
@@ -84,21 +118,23 @@ export const LoanPrograms = () => {
                   <program.icon className="w-8 h-8 text-white" />
                 </div>
               </div>
-              
+
               <h3 className="text-2xl font-semibold text-navy mb-3 group-hover:text-rsc transition-colors duration-200">
                 {program.title}
               </h3>
-              
+
               <p className="text-gray-700 mb-4 leading-relaxed">
                 {program.description}
               </p>
-              
-              <a 
+
+              <a
                 href={program.link}
                 className="text-gold font-semibold hover:text-gold-dark transition-colors duration-200 inline-flex items-center group"
               >
                 Learn More
-                <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
+                <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">
+                  →
+                </span>
               </a>
             </div>
           ))}
