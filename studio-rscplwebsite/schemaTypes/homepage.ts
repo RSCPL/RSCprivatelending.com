@@ -41,6 +41,40 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'whyRscTitle',
+      title: 'Why RSC Title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'whyRscSubtitle',
+      title: 'Why RSC Subtitle',
+      type: 'text',
+    }),
+    defineField({
+      name: 'whyRscItems',
+      title: 'Why RSC Items',
+      type: 'array',
+      of: [
+        defineField({
+          name: 'whyRscItem',
+          title: 'Why RSC Item',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Title',
+              type: 'string',
+            }),
+            defineField({
+              name: 'description',
+              title: 'Description',
+              type: 'text',
+            }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
       name: 'loanPrograms',
       title: 'Loan Programs',
       type: 'array',
@@ -59,6 +93,60 @@ export default defineType({
               name: 'description',
               title: 'Description',
               type: 'text',
+            }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
+      name: 'recentDealsTitle',
+      title: 'Recent Deals Title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'recentDealsSubtitle',
+      title: 'Recent Deals Subtitle',
+      type: 'text',
+    }),
+    defineField({
+      name: 'recentDealsItems',
+      title: 'Recent Deals Items',
+      type: 'array',
+      of: [
+        defineField({
+          name: 'recentDealItem',
+          title: 'Recent Deal Item',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'image',
+              title: 'Image',
+              type: 'image',
+            }),
+            defineField({
+              name: 'type',
+              title: 'Deal Type',
+              type: 'string',
+            }),
+            defineField({
+              name: 'location',
+              title: 'Location',
+              type: 'string',
+            }),
+            defineField({
+              name: 'amount',
+              title: 'Amount',
+              type: 'string',
+            }),
+            defineField({
+              name: 'note',
+              title: 'Note',
+              type: 'string',
+            }),
+            defineField({
+              name: 'ltc',
+              title: 'LTC / Label',
+              type: 'string',
             }),
           ],
         }),

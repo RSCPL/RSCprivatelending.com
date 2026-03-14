@@ -1,4 +1,16 @@
 export const homepageQuery = `*[_type == "homepage"][0]{
+  companyName,
+  phone,
+  email,
+  address,
+  footerText,
+  tagline,
+  copyrightText,
+  disclaimer1,
+  disclaimer2,
+  disclaimer3,
+  primaryCtaText,
+  primaryCtaLink
   heroTitle,
   heroSubtitle,
   heroButtonText,
@@ -6,12 +18,34 @@ export const homepageQuery = `*[_type == "homepage"][0]{
   ctaTitle,
   ctaSubtitle,
   ctaButtonText,
-  loanPrograms[]{
+  whyRscTitle,
+  whyRscSubtitle,
+  recentDealsTitle,
+  recentDealsSubtitle,
+  recentDealsItems[]{
+  image,
+  type,
+  location,
+  amount,
+  note,
+  ltc
+},
+  whyRscItems[]{
   title,
   description
   },
   faqItems[]{
     question,
     answer
+  },
+  loanPrograms[]{
+    title,
+    description
   }
+  }`;
+
+export const siteSettingsQuery = `*[_type == "siteSettings"][0]{
+  companyName,
+  primaryCtaText,
+  primaryCtaLink
 }`;
