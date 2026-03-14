@@ -2,133 +2,111 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    /* RSC Private Lending Brand Colors */
     --background: 0 0% 100%;
     --foreground: 209 73% 13%;
-    
-    /* Deep Navy - Primary Background */
+
     --navy: 209 73% 13%;
     --navy-light: 209 65% 18%;
     --navy-lighter: 209 50% 25%;
-    
-    /* RSC Red - Primary Accent */
+
     --rsc-red: 0 71% 57%;
     --rsc-red-dark: 0 71% 47%;
     --rsc-red-light: 0 71% 67%;
-    
-    /* Gold - Secondary Accent */
+
     --gold: 42 48% 57%;
     --gold-light: 42 48% 67%;
     --gold-dark: 42 48% 47%;
-    
-    /* Neutral Grays */
+
     --gray-50: 210 20% 98%;
     --gray-100: 210 20% 95%;
     --gray-200: 210 20% 90%;
     --gray-300: 210 15% 80%;
     --gray-700: 210 15% 40%;
-    
-    /* Semantic Tokens */
+
     --primary: 0 71% 57%;
     --primary-foreground: 0 0% 100%;
-    
+
     --secondary: 42 48% 57%;
     --secondary-foreground: 209 73% 13%;
-    
+
     --accent: 209 65% 18%;
     --accent-foreground: 0 0% 100%;
-    
+
     --muted: 210 20% 95%;
     --muted-foreground: 210 15% 40%;
-    
+
     --card: 0 0% 100%;
     --card-foreground: 209 73% 13%;
-    
+
     --border: 210 20% 90%;
     --input: 210 20% 90%;
     --ring: 0 71% 57%;
-    
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    
+
     --popover: 0 0% 100%;
     --popover-foreground: 209 73% 13%;
 
     --radius: 0.5rem;
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-white text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
-    font-family: 'Merriweather', 'Playfair Display', Georgia, serif;
+    font-family: "Merriweather", "Playfair Display", Georgia, serif;
   }
 }
 
 @layer utilities {
-  /* Animation Utilities */
   .animate-fade-up {
     animation: fadeUp 0.4s ease-out forwards;
   }
-  
+
   .animate-fade-in {
     animation: fadeIn 0.4s ease-out forwards;
   }
-  
+
   .animate-scale-in {
     animation: scaleIn 0.3s ease-out forwards;
   }
-  
+
   .animate-slide-in {
     animation: slideIn 0.4s ease-out forwards;
   }
-  
-  /* Stagger delays for children */
+
   .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
   .stagger-children > *:nth-child(2) { animation-delay: 80ms; }
   .stagger-children > *:nth-child(3) { animation-delay: 160ms; }
   .stagger-children > *:nth-child(4) { animation-delay: 240ms; }
   .stagger-children > *:nth-child(5) { animation-delay: 320ms; }
   .stagger-children > *:nth-child(6) { animation-delay: 400ms; }
-  
-  /* Hover utilities */
+
   .hover-lift {
     transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   }
-  
+
   .hover-lift:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
   }
-  
-  /* Hidden state for scroll animations */
+
   .reveal {
     opacity: 0;
     transform: translateY(24px);
     transition: opacity 0.4s ease-out, transform 0.4s ease-out;
   }
-  
+
   .reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
@@ -136,84 +114,39 @@ All colors MUST be HSL.
 }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes drawLine {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
 @keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .animate-shimmer {
@@ -227,14 +160,4 @@ All colors MUST be HSL.
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
 }
