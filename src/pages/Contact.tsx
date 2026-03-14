@@ -13,11 +13,46 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Phone, Mail, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { client } from "../lib/sanity";
+import { siteSettingsQuery, contactPageQuery } from "../lib/queries";
+
+type SiteSettingsData = {
+  companyName?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  footerText?: string;
+  tagline?: string;
+  copyrightText?: string;
+  disclaimer1?: string;
+  disclaimer2?: string;
+  disclaimer3?: string;
+  primaryCtaText?: string;
+  primaryCtaLink?: string;
+};
+
+type ContactPageData = {
+  pageTitle?: string;
+  pageSubtitle?: string;
+  heroEyebrow?: string;
+  heroImage?: any;
+  contactSectionTitle?: string;
+  contactSectionSubtitle?: string;
+  formDisclaimer?: string;
+  officeTitle?: string;
+  officeDescription?: string;
+};
 
 const Contact = () => {
   const { toast } = useToast();
+
+  const [siteSettings, setSiteSettings] = useState<SiteSettingsData | null>(
+    null,
+  );
+  const [contactPage, setContactPage] = useState<ContactPageData | null>(null);
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -28,9 +63,19 @@ const Contact = () => {
     agreedToTerms: false,
   });
 
+  useEffect(() => {
+    client.fetch(siteSettingsQuery).then((data) => {
+      setSiteSettings(data);
+    });
+
+    client.fetch(contactPageQuery).then((data) => {
+      setContactPage(data);
+    });
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.agreedToTerms) {
       toast({
         title: "Agreement Required",
@@ -40,13 +85,11 @@ const Contact = () => {
       return;
     }
 
-    // Form submission logic here
     toast({
       title: "Message Sent",
       description: "Thank you for contacting us. We'll respond shortly.",
     });
-    
-    // Reset form
+
     setFormData({
       fullName: "",
       email: "",
@@ -58,94 +101,110 @@ const Contact = () => {
     });
   };
 
+  const displayPhone = siteSettings?.phone || "+1-808-427-3312";
+  const displayEmail = siteSettings?.email || "info@RSCPrivateLending.com";
+  const displayAddress =
+    contactPage?.officeDescription ||
+    siteSettings?.address ||
+    "118 Vintage Park Blvd #W317\nHouston, TX 77070";
+
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
-      {/* Hero Section */}
+      <Navbar
+        companyName={siteSettings?.companyName}
+        primaryCtaText={siteSettings?.primaryCtaText}
+        primaryCtaLink={siteSettings?.primaryCtaLink}
+      />
+
       <section className="bg-[#3B4E6B] pt-32 pb-20 md:pt-40 md:pb-28">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
+            {contactPage?.heroEyebrow && (
+              <p className="text-sm uppercase tracking-[0.2em] text-gray-300 mb-4">
+                {contactPage.heroEyebrow}
+              </p>
+            )}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-6">
-              Contact Us
+              {contactPage?.pageTitle || "Contact Us"}
             </h1>
             <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
-              We're here to assist with loan inquiries, program questions, and general requests. 
-              For loan scenarios or deal submissions, please use the secure form below.
+              {contactPage?.pageSubtitle ||
+                "We're here to assist with loan inquiries, program questions, and general requests. For loan scenarios or deal submissions, please use the secure form below."}
             </p>
           </div>
         </div>
       </section>
 
-      {/* Contact Information Cards */}
       <section className="py-20 md:py-28 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Phone Card */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                 <Phone className="w-8 h-8 text-gray-700" strokeWidth={1.5} />
               </div>
               <h3 className="text-xl font-bold text-navy mb-4">Phone</h3>
-              <p className="text-gray-600 mb-2">For faster responses, call or text us at:</p>
-              <a 
-                href="tel:+18084273312" 
+              <p className="text-gray-600 mb-2">
+                For faster responses, call or text us at:
+              </p>
+              <a
+                href={`tel:${displayPhone}`}
                 className="text-lg font-semibold text-navy hover:text-rsc-red transition-colors"
               >
-                +1-808-427-3312
+                {displayPhone}
               </a>
             </div>
 
-            {/* Email Card */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                 <Mail className="w-8 h-8 text-gray-700" strokeWidth={1.5} />
               </div>
               <h3 className="text-xl font-bold text-navy mb-4">Email</h3>
               <p className="text-gray-600 mb-2">General inquiries:</p>
-              <a 
-                href="mailto:info@RSCPrivateLending.com" 
+              <a
+                href={`mailto:${displayEmail}`}
                 className="text-lg font-semibold text-navy hover:text-rsc-red transition-colors break-all"
               >
-                info@RSCPrivateLending.com
+                {displayEmail}
               </a>
             </div>
 
-            {/* Office Card */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center hover:shadow-md transition-shadow md:col-span-2 lg:col-span-1">
               <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
                 <MapPin className="w-8 h-8 text-gray-700" strokeWidth={1.5} />
               </div>
-              <h3 className="text-xl font-bold text-navy mb-4">Office</h3>
-              <p className="text-gray-600 leading-relaxed">
-                118 Vintage Park Blvd #W317<br />
-                Houston, TX 77070
+              <h3 className="text-xl font-bold text-navy mb-4">
+                {contactPage?.officeTitle || "Office"}
+              </h3>
+              <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                {displayAddress}
               </p>
             </div>
           </div>
 
           <p className="text-center text-gray-600 mt-12 max-w-2xl mx-auto">
-            For loan scenario submissions or funding requests, please complete the secure form below.
+            {contactPage?.contactSectionSubtitle ||
+              "For loan scenario submissions or funding requests, please complete the secure form below."}
           </p>
         </div>
       </section>
 
-      {/* Message Form Section */}
       <section className="py-20 md:py-28 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm p-8 md:p-12">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-navy mb-4">
-              Send Us a Message
+              {contactPage?.contactSectionTitle || "Send Us a Message"}
             </h2>
             <p className="text-gray-600 mb-8 leading-relaxed">
-              We're here to assist with loan inquiries, program questions, and general requests. 
-              Expect clear communication and prompt responses.
+              {contactPage?.contactSectionSubtitle ||
+                "We're here to assist with loan inquiries, program questions, and general requests. Expect clear communication and prompt responses."}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Full Name */}
               <div>
-                <Label htmlFor="fullName" className="text-gray-700 font-medium mb-2 block">
+                <Label
+                  htmlFor="fullName"
+                  className="text-gray-700 font-medium mb-2 block"
+                >
                   Full Name *
                 </Label>
                 <Input
@@ -153,14 +212,18 @@ const Contact = () => {
                   type="text"
                   required
                   value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fullName: e.target.value })
+                  }
                   className="h-12 border-gray-300 focus:border-rsc-red"
                 />
               </div>
 
-              {/* Email */}
               <div>
-                <Label htmlFor="email" className="text-gray-700 font-medium mb-2 block">
+                <Label
+                  htmlFor="email"
+                  className="text-gray-700 font-medium mb-2 block"
+                >
                   Email Address *
                 </Label>
                 <Input
@@ -168,14 +231,18 @@ const Contact = () => {
                   type="email"
                   required
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="h-12 border-gray-300 focus:border-rsc-red"
                 />
               </div>
 
-              {/* Phone */}
               <div>
-                <Label htmlFor="phone" className="text-gray-700 font-medium mb-2 block">
+                <Label
+                  htmlFor="phone"
+                  className="text-gray-700 font-medium mb-2 block"
+                >
                   Phone Number *
                 </Label>
                 <Input
@@ -183,20 +250,25 @@ const Contact = () => {
                   type="tel"
                   required
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   className="h-12 border-gray-300 focus:border-rsc-red"
                 />
               </div>
 
-              {/* Property Status */}
               <div>
-                <Label htmlFor="propertyStatus" className="text-gray-700 font-medium mb-2 block">
+                <Label
+                  htmlFor="propertyStatus"
+                  className="text-gray-700 font-medium mb-2 block"
+                >
                   Property Status *
                 </Label>
                 <Select
-                  required
                   value={formData.propertyStatus}
-                  onValueChange={(value) => setFormData({ ...formData, propertyStatus: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, propertyStatus: value })
+                  }
                 >
                   <SelectTrigger className="h-12 border-gray-300 focus:border-rsc-red">
                     <SelectValue placeholder="Currently have a property in mind?" />
@@ -209,9 +281,11 @@ const Contact = () => {
                 </Select>
               </div>
 
-              {/* AS-IS Value */}
               <div>
-                <Label htmlFor="asIsValue" className="text-gray-700 font-medium mb-2 block">
+                <Label
+                  htmlFor="asIsValue"
+                  className="text-gray-700 font-medium mb-2 block"
+                >
                   Property AS-IS Value (if applicable)
                 </Label>
                 <Input
@@ -219,14 +293,18 @@ const Contact = () => {
                   type="number"
                   placeholder="$0"
                   value={formData.asIsValue}
-                  onChange={(e) => setFormData({ ...formData, asIsValue: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, asIsValue: e.target.value })
+                  }
                   className="h-12 border-gray-300 focus:border-rsc-red"
                 />
               </div>
 
-              {/* Message */}
               <div>
-                <Label htmlFor="message" className="text-gray-700 font-medium mb-2 block">
+                <Label
+                  htmlFor="message"
+                  className="text-gray-700 font-medium mb-2 block"
+                >
                   Message *
                 </Label>
                 <Textarea
@@ -234,31 +312,34 @@ const Contact = () => {
                   required
                   placeholder="Tell us about your project or inquiry..."
                   value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, message: e.target.value })
+                  }
                   className="min-h-[140px] border-gray-300 focus:border-rsc-red resize-none"
                 />
               </div>
 
-              {/* Terms Checkbox */}
               <div className="flex items-start space-x-3">
                 <Checkbox
                   id="terms"
                   checked={formData.agreedToTerms}
-                  onCheckedChange={(checked) => 
-                    setFormData({ ...formData, agreedToTerms: checked as boolean })
+                  onCheckedChange={(checked) =>
+                    setFormData({
+                      ...formData,
+                      agreedToTerms: checked as boolean,
+                    })
                   }
                   className="mt-1"
                 />
-                <Label 
-                  htmlFor="terms" 
+                <Label
+                  htmlFor="terms"
                   className="text-sm text-gray-600 leading-relaxed cursor-pointer"
                 >
-                  I agree to the Terms of Service and Privacy Policy. By submitting this form, 
-                  I consent to being contacted by RSC Private Lending regarding my inquiry.
+                  {contactPage?.formDisclaimer ||
+                    "I agree to the Terms of Service and Privacy Policy. By submitting this form, I consent to being contacted by RSC Private Lending regarding my inquiry."}
                 </Label>
               </div>
 
-              {/* Submit Button */}
               <div className="pt-6 pb-2">
                 <Button
                   type="submit"
@@ -268,16 +349,27 @@ const Contact = () => {
                 </Button>
               </div>
 
-              {/* Privacy Note */}
               <p className="text-sm text-gray-500 leading-relaxed mt-4">
-                By submitting this form, you agree to our Privacy Policy and Terms of Service.
+                By submitting this form, you agree to our Privacy Policy and
+                Terms of Service.
               </p>
             </form>
           </div>
         </div>
       </section>
 
-      <Footer />
+      <Footer
+        companyName={siteSettings?.companyName}
+        phone={siteSettings?.phone}
+        email={siteSettings?.email}
+        address={siteSettings?.address}
+        footerText={siteSettings?.footerText}
+        tagline={siteSettings?.tagline}
+        copyrightText={siteSettings?.copyrightText}
+        disclaimer1={siteSettings?.disclaimer1}
+        disclaimer2={siteSettings?.disclaimer2}
+        disclaimer3={siteSettings?.disclaimer3}
+      />
     </div>
   );
 };

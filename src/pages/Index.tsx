@@ -28,6 +28,12 @@ type HomepageData = {
     note?: string;
     ltc?: string;
   }[];
+  fundingProcessTitle?: string;
+  fundingProcessSubtitle?: string;
+  fundingProcessSteps?: {
+    title?: string;
+    description?: string;
+  }[];
   whyRscTitle?: string;
   whyRscSubtitle?: string;
   whyRscItems?: {
@@ -59,9 +65,11 @@ type SiteSettingsData = {
   primaryCtaText?: string;
   primaryCtaLink?: string;
 };
-const [siteSettings, setSiteSettings] = useState<SiteSettingsData | null>(null);
 const Index = () => {
   const [homepage, setHomepage] = useState<HomepageData | null>(null);
+  const [siteSettings, setSiteSettings] = useState<SiteSettingsData | null>(
+    null,
+  );
 
   useEffect(() => {
     client.fetch(homepageQuery).then((data) => {
@@ -98,8 +106,12 @@ const Index = () => {
         recentDealsSubtitle={homepage?.recentDealsSubtitle}
         recentDealsItems={homepage?.recentDealsItems}
       />
-      <FundingProcess />
-      <FAQ faqItems={homepage?.faqItems} />{" "}
+      <FundingProcess
+        fundingProcessTitle={homepage?.fundingProcessTitle}
+        fundingProcessSubtitle={homepage?.fundingProcessSubtitle}
+        fundingProcessSteps={homepage?.fundingProcessSteps}
+      />
+      <FAQ faqItems={homepage?.faqItems} />\
       <CTABanner
         ctaTitle={homepage?.ctaTitle}
         ctaSubtitle={homepage?.ctaSubtitle}

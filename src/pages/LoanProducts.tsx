@@ -13,51 +13,88 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { 
-  Hammer, 
-  Building2, 
-  TrendingUp, 
-  Home,
-  ChevronDown,
-  Info
-} from "lucide-react";
+import { Hammer, Building2, TrendingUp, Home, Info } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { client } from "../lib/sanity";
+import { siteSettingsQuery, loanProductsPageQuery } from "../lib/queries";
 
-const loanProducts = [
+type SiteSettingsData = {
+  companyName?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  footerText?: string;
+  tagline?: string;
+  copyrightText?: string;
+  disclaimer1?: string;
+  disclaimer2?: string;
+  disclaimer3?: string;
+  primaryCtaText?: string;
+  primaryCtaLink?: string;
+};
+
+type LoanProductItem = {
+  id?: string;
+  title?: string;
+  description?: string;
+  details?: string;
+};
+
+type LoanProductsPageData = {
+  pageTitle?: string;
+  pageSubtitle?: string;
+  pageEyebrow?: string;
+  heroImage?: any;
+  productsSectionTitle?: string;
+  productsSectionSubtitle?: string;
+  products?: LoanProductItem[];
+  calculatorTitle?: string;
+  calculatorSubtitle?: string;
+  contactSectionTitle?: string;
+  contactSectionSubtitle?: string;
+};
+
+const fallbackLoanProducts = [
   {
     id: "fix-flip",
-    icon: Hammer,
     title: "Fix and Flip",
-    description: "Short-term financing for investors renovating and repositioning properties for resale. Clear criteria, fast execution.",
-    details: "Our fix and flip loans provide disciplined capital for property acquisition and renovation. We structure terms based on property fundamentals and renovation scope, with competitive rates and transparent draw schedules."
+    description:
+      "Short-term financing for investors renovating and repositioning properties for resale. Clear criteria, fast execution.",
+    details:
+      "Our fix and flip loans provide disciplined capital for property acquisition and renovation. We structure terms based on property fundamentals and renovation scope, with competitive rates and transparent draw schedules.",
   },
   {
     id: "ground-up",
-    icon: Building2,
     title: "Ground-Up Construction",
-    description: "Flexible financing for new construction projects with disciplined underwriting and competitive terms.",
-    details: "Ground-up construction financing backed by thorough project analysis and structured milestone-based funding. We support experienced developers with institutional-grade underwriting and reliable execution."
+    description:
+      "Flexible financing for new construction projects with disciplined underwriting and competitive terms.",
+    details:
+      "Ground-up construction financing backed by thorough project analysis and structured milestone-based funding. We support experienced developers with institutional-grade underwriting and reliable execution.",
   },
   {
     id: "bridge",
-    icon: TrendingUp,
     title: "Investor Loans Bridge",
-    description: "Short-term capital to bridge timing gaps between acquisitions and long-term financing. Reliable and structured execution.",
-    details: "Bridge loans designed for real estate investors navigating timing challenges. Quick closings with transparent terms, allowing seamless transitions between property phases or financing structures."
+    description:
+      "Short-term capital to bridge timing gaps between acquisitions and long-term financing. Reliable and structured execution.",
+    details:
+      "Bridge loans designed for real estate investors navigating timing challenges. Quick closings with transparent terms, allowing seamless transitions between property phases or financing structures.",
   },
   {
     id: "dscr",
-    icon: Home,
     title: "DSCR",
-    description: "Long-term rental financing based on DSCR performance metrics. Ideal for stabilized investment properties.",
-    details: "Debt Service Coverage Ratio loans for income-producing properties. We underwrite based on property cash flow with flexible terms for experienced investors managing rental portfolios."
-  }
+    description:
+      "Long-term rental financing based on DSCR performance metrics. Ideal for stabilized investment properties.",
+    details:
+      "Debt Service Coverage Ratio loans for income-producing properties. We underwrite based on property cash flow with flexible terms for experienced investors managing rental portfolios.",
+  },
 ];
+
+const icons = [Hammer, Building2, TrendingUp, Home];
 
 const LoanProducts = () => {
   const [loanAmount, setLoanAmount] = useState(500000);
@@ -67,110 +104,149 @@ const LoanProducts = () => {
   const [amortizationType, setAmortizationType] = useState("interest-only");
   const [hasProperty, setHasProperty] = useState<string>("");
 
+  const [siteSettings, setSiteSettings] = useState<SiteSettingsData | null>(
+    null,
+  );
+  const [loanProductsPage, setLoanProductsPage] =
+    useState<LoanProductsPageData | null>(null);
+
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    client.fetch(siteSettingsQuery).then((data) => {
+      setSiteSettings(data);
+    });
+
+    client.fetch(loanProductsPageQuery).then((data) => {
+      setLoanProductsPage(data);
+    });
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
+            entry.target.classList.add("is-visible");
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
-    const elements = heroRef.current?.querySelectorAll('.reveal');
+    const elements = heroRef.current?.querySelectorAll(".reveal");
     elements?.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
   }, []);
 
-  // Calculator calculations
   const totalLoanAmount = loanAmount + constructionBudget;
   const monthlyInterestRate = interestRate / 100 / 12;
-  
+
   const calculateMonthlyPayment = () => {
     if (amortizationType === "interest-only") {
       return totalLoanAmount * monthlyInterestRate;
     } else {
-      // Fully amortized
       const n = loanTerm;
-      return totalLoanAmount * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, n)) / 
-             (Math.pow(1 + monthlyInterestRate, n) - 1);
+      return (
+        totalLoanAmount *
+        ((monthlyInterestRate * Math.pow(1 + monthlyInterestRate, n)) /
+          (Math.pow(1 + monthlyInterestRate, n) - 1))
+      );
     }
   };
 
   const monthlyPayment = calculateMonthlyPayment();
-  const loanToValue = ((totalLoanAmount / (totalLoanAmount * 1.3)) * 100).toFixed(2); // Simplified LTV calculation
-  const balloonAmount = amortizationType === "interest-only" ? totalLoanAmount : 0;
+  const loanToValue = (
+    (totalLoanAmount / (totalLoanAmount * 1.3)) *
+    100
+  ).toFixed(2);
+  const balloonAmount =
+    amortizationType === "interest-only" ? totalLoanAmount : 0;
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
   };
 
+  const products =
+    loanProductsPage?.products && loanProductsPage.products.length > 0
+      ? loanProductsPage.products.map((product, index) => ({
+          ...product,
+          icon: icons[index % icons.length],
+        }))
+      : fallbackLoanProducts.map((product, index) => ({
+          ...product,
+          icon: icons[index % icons.length],
+        }));
+
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
-      {/* Hero Section */}
-      <section 
+      <Navbar
+        companyName={siteSettings?.companyName}
+        primaryCtaText={siteSettings?.primaryCtaText}
+        primaryCtaLink={siteSettings?.primaryCtaLink}
+      />
+
+      <section
         ref={heroRef}
         className="relative min-h-[60vh] flex items-center bg-[#3B4E6B] overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#3B4E6B]/95 to-[#2a3a4f]/95" />
-        
+
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="max-w-3xl reveal">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Explore Our Institutional Loan Suite
+              {loanProductsPage?.pageTitle ||
+                "Explore Our Institutional Loan Suite"}
             </h1>
             <p className="text-xl md:text-2xl text-gray-200 mb-6 leading-relaxed">
-              Disciplined, transparent, and flexible financing solutions for serious real estate investors and developers.
+              {loanProductsPage?.pageSubtitle ||
+                "Disciplined, transparent, and flexible financing solutions for serious real estate investors and developers."}
             </p>
             <p className="text-lg text-gray-300 mb-10">
-              Built on quiet confidence, strong processes, and investor-first execution.
+              {loanProductsPage?.pageEyebrow ||
+                "Built on quiet confidence, strong processes, and investor-first execution."}
             </p>
-            <Button 
+            <Button
               size="lg"
               className="bg-rsc-red hover:bg-rsc-red-dark text-white px-8 py-6 text-lg rounded-full font-semibold transition-all duration-200"
             >
-              Submit Deal Scenario
+              {siteSettings?.primaryCtaText || "Submit Deal Scenario"}
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Loan Products Accordion */}
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
-                Loan Products
+                {loanProductsPage?.productsSectionTitle || "Loan Products"}
               </h2>
               <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-                Structured financing solutions with transparent criteria and reliable execution
+                {loanProductsPage?.productsSectionSubtitle ||
+                  "Structured financing solutions with transparent criteria and reliable execution"}
               </p>
             </div>
 
             <Accordion type="single" collapsible className="space-y-4">
-              {loanProducts.map((product) => (
-                <AccordionItem 
-                  key={product.id} 
-                  value={product.id}
+              {products.map((product, index) => (
+                <AccordionItem
+                  key={product.id || index}
+                  value={product.id || `product-${index}`}
                   className="border border-border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
                 >
                   <AccordionTrigger className="px-8 py-6 hover:no-underline group">
                     <div className="flex items-center gap-4 text-left w-full">
                       <div className="w-12 h-12 rounded-lg bg-navy/5 flex items-center justify-center group-hover:bg-navy/10 transition-colors duration-200">
-                        <product.icon className="w-6 h-6 text-navy" strokeWidth={1.5} />
+                        <product.icon
+                          className="w-6 h-6 text-navy"
+                          strokeWidth={1.5}
+                        />
                       </div>
                       <div className="flex-1">
                         <h3 className="text-2xl font-bold text-navy mb-2 group-hover:text-rsc-red transition-colors duration-200">
@@ -194,20 +270,19 @@ const LoanProducts = () => {
         </div>
       </section>
 
-      {/* Loan Calculator */}
       <section id="loan-calculator" className="py-24 bg-gray-50 scroll-mt-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto">
             <div className="bg-white rounded-xl shadow-md border border-border p-8 md:p-12">
               <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
-                Loan Calculator
+                {loanProductsPage?.calculatorTitle || "Loan Calculator"}
               </h2>
               <p className="text-gray-600 mb-10">
-                Estimate your loan structure with transparent calculations
+                {loanProductsPage?.calculatorSubtitle ||
+                  "Estimate your loan structure with transparent calculations"}
               </p>
 
               <div className="grid md:grid-cols-2 gap-12">
-                {/* Left Column - Inputs */}
                 <div className="space-y-8">
                   <div>
                     <Label className="text-base font-semibold text-navy mb-3 flex items-center gap-2">
@@ -218,7 +293,9 @@ const LoanProducts = () => {
                             <Info className="w-4 h-4 text-gray-400" />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p className="max-w-xs">Primary loan amount for property acquisition</p>
+                            <p className="max-w-xs">
+                              Primary loan amount for property acquisition
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -283,7 +360,9 @@ const LoanProducts = () => {
                     <div className="flex items-center gap-4">
                       <Slider
                         value={[constructionBudget]}
-                        onValueChange={([value]) => setConstructionBudget(value)}
+                        onValueChange={([value]) =>
+                          setConstructionBudget(value)
+                        }
                         min={0}
                         max={1000000}
                         step={5000}
@@ -302,17 +381,33 @@ const LoanProducts = () => {
                     <div className="flex gap-4">
                       <Button
                         type="button"
-                        variant={amortizationType === "interest-only" ? "default" : "outline"}
+                        variant={
+                          amortizationType === "interest-only"
+                            ? "default"
+                            : "outline"
+                        }
                         onClick={() => setAmortizationType("interest-only")}
-                        className={amortizationType === "interest-only" ? "bg-rsc-red hover:bg-rsc-red-dark" : ""}
+                        className={
+                          amortizationType === "interest-only"
+                            ? "bg-rsc-red hover:bg-rsc-red-dark"
+                            : ""
+                        }
                       >
                         Interest Only
                       </Button>
                       <Button
                         type="button"
-                        variant={amortizationType === "fully-amortized" ? "default" : "outline"}
+                        variant={
+                          amortizationType === "fully-amortized"
+                            ? "default"
+                            : "outline"
+                        }
                         onClick={() => setAmortizationType("fully-amortized")}
-                        className={amortizationType === "fully-amortized" ? "bg-rsc-red hover:bg-rsc-red-dark" : ""}
+                        className={
+                          amortizationType === "fully-amortized"
+                            ? "bg-rsc-red hover:bg-rsc-red-dark"
+                            : ""
+                        }
                       >
                         Fully Amortized
                       </Button>
@@ -320,39 +415,47 @@ const LoanProducts = () => {
                   </div>
                 </div>
 
-                {/* Right Column - Summary */}
                 <div className="bg-gray-50 rounded-lg p-8 border border-border">
                   <h3 className="text-2xl font-bold text-navy mb-8">
                     Payment Summary
                   </h3>
                   <div className="space-y-6">
                     <div className="flex justify-between items-center pb-4 border-b border-border">
-                      <span className="text-gray-700 font-medium">Monthly Payment</span>
+                      <span className="text-gray-700 font-medium">
+                        Monthly Payment
+                      </span>
                       <span className="text-2xl font-bold text-navy">
                         {formatCurrency(monthlyPayment)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center pb-4 border-b border-border">
-                      <span className="text-gray-700 font-medium">Total Loan Amount</span>
+                      <span className="text-gray-700 font-medium">
+                        Total Loan Amount
+                      </span>
                       <span className="text-xl font-semibold text-navy">
                         {formatCurrency(totalLoanAmount)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center pb-4 border-b border-border">
-                      <span className="text-gray-700 font-medium">Loan-to-Value</span>
+                      <span className="text-gray-700 font-medium">
+                        Loan-to-Value
+                      </span>
                       <span className="text-xl font-semibold text-navy">
                         {loanToValue}%
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-700 font-medium">Balloon Amount</span>
+                      <span className="text-gray-700 font-medium">
+                        Balloon Amount
+                      </span>
                       <span className="text-xl font-semibold text-navy">
                         {formatCurrency(balloonAmount)}
                       </span>
                     </div>
                   </div>
                   <p className="text-sm text-gray-500 mt-6 leading-relaxed">
-                    Calculations are estimates. Final terms subject to underwriting and approval.
+                    Calculations are estimates. Final terms subject to
+                    underwriting and approval.
                   </p>
                 </div>
               </div>
@@ -361,16 +464,17 @@ const LoanProducts = () => {
         </div>
       </section>
 
-      {/* Connect With Us Form */}
       <section className="py-24 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-4xl md:text-5xl font-bold text-navy mb-4">
-                Connect With Our Lending Team
+                {loanProductsPage?.contactSectionTitle ||
+                  "Connect With Our Lending Team"}
               </h2>
               <p className="text-xl text-gray-700">
-                We're here to answer questions about loan structures, eligibility, or deal scenarios. Expect disciplined, transparent guidance.
+                {loanProductsPage?.contactSectionSubtitle ||
+                  "We're here to answer questions about loan structures, eligibility, or deal scenarios. Expect disciplined, transparent guidance."}
               </p>
             </div>
 
@@ -378,20 +482,26 @@ const LoanProducts = () => {
               <form className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="fullName" className="text-base font-semibold text-navy mb-2">
+                    <Label
+                      htmlFor="fullName"
+                      className="text-base font-semibold text-navy mb-2"
+                    >
                       Full Name
                     </Label>
-                    <Input 
+                    <Input
                       id="fullName"
                       placeholder="John Smith"
                       className="h-12"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone" className="text-base font-semibold text-navy mb-2">
+                    <Label
+                      htmlFor="phone"
+                      className="text-base font-semibold text-navy mb-2"
+                    >
                       Phone
                     </Label>
-                    <Input 
+                    <Input
                       id="phone"
                       type="tel"
                       placeholder="(555) 123-4567"
@@ -401,10 +511,13 @@ const LoanProducts = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="text-base font-semibold text-navy mb-2">
+                  <Label
+                    htmlFor="email"
+                    className="text-base font-semibold text-navy mb-2"
+                  >
                     Email
                   </Label>
-                  <Input 
+                  <Input
                     id="email"
                     type="email"
                     placeholder="john@example.com"
@@ -443,10 +556,13 @@ const LoanProducts = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="asIsValue" className="text-base font-semibold text-navy mb-2">
+                  <Label
+                    htmlFor="asIsValue"
+                    className="text-base font-semibold text-navy mb-2"
+                  >
                     AS-IS Value
                   </Label>
-                  <Input 
+                  <Input
                     id="asIsValue"
                     type="text"
                     placeholder="$500,000"
@@ -455,10 +571,13 @@ const LoanProducts = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="message" className="text-base font-semibold text-navy mb-2">
+                  <Label
+                    htmlFor="message"
+                    className="text-base font-semibold text-navy mb-2"
+                  >
                     Message
                   </Label>
-                  <Textarea 
+                  <Textarea
                     id="message"
                     placeholder="Tell us about your project or scenario..."
                     className="min-h-[120px]"
@@ -467,13 +586,18 @@ const LoanProducts = () => {
 
                 <div className="flex items-start gap-3 pt-2">
                   <Checkbox id="terms" className="mt-1" />
-                  <Label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
-                    By submitting this form, I consent to RSC Private Lending contacting me regarding loan products and services. 
-                    I understand this is not a commitment to lend and all loans are subject to underwriting approval.
+                  <Label
+                    htmlFor="terms"
+                    className="text-sm text-gray-600 leading-relaxed cursor-pointer"
+                  >
+                    By submitting this form, I consent to RSC Private Lending
+                    contacting me regarding loan products and services. I
+                    understand this is not a commitment to lend and all loans
+                    are subject to underwriting approval.
                   </Label>
                 </div>
 
-                <Button 
+                <Button
                   type="submit"
                   size="lg"
                   className="w-full bg-rsc-red hover:bg-rsc-red-dark text-white py-6 text-lg rounded-full font-semibold transition-all duration-200"
@@ -486,7 +610,18 @@ const LoanProducts = () => {
         </div>
       </section>
 
-      <Footer />
+      <Footer
+        companyName={siteSettings?.companyName}
+        phone={siteSettings?.phone}
+        email={siteSettings?.email}
+        address={siteSettings?.address}
+        footerText={siteSettings?.footerText}
+        tagline={siteSettings?.tagline}
+        copyrightText={siteSettings?.copyrightText}
+        disclaimer1={siteSettings?.disclaimer1}
+        disclaimer2={siteSettings?.disclaimer2}
+        disclaimer3={siteSettings?.disclaimer3}
+      />
     </div>
   );
 };

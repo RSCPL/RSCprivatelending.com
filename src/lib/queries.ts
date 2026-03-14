@@ -1,4 +1,44 @@
 export const homepageQuery = `*[_type == "homepage"][0]{
+  heroTitle,
+  heroSubtitle,
+  heroButtonText,
+  heroImage,
+  ctaTitle,
+  ctaSubtitle,
+  ctaButtonText,
+  faqItems[]{
+    question,
+    answer
+  },
+  loanPrograms[]{
+    title,
+    description
+  },
+  whyRscTitle,
+  whyRscSubtitle,
+  whyRscItems[]{
+    title,
+    description
+  },
+  fundingProcessTitle,
+  fundingProcessSubtitle,
+  fundingProcessSteps[]{
+  title,
+  description
+},
+  recentDealsTitle,
+  recentDealsSubtitle,
+  recentDealsItems[]{
+    image,
+    type,
+    location,
+    amount,
+    note,
+    ltc
+  }
+}`;
+
+export const siteSettingsQuery = `*[_type == "siteSettings"][0]{
   companyName,
   phone,
   email,
@@ -11,41 +51,50 @@ export const homepageQuery = `*[_type == "homepage"][0]{
   disclaimer3,
   primaryCtaText,
   primaryCtaLink
-  heroTitle,
-  heroSubtitle,
-  heroButtonText,
-  heroImage,
-  ctaTitle,
-  ctaSubtitle,
-  ctaButtonText,
-  whyRscTitle,
-  whyRscSubtitle,
-  recentDealsTitle,
-  recentDealsSubtitle,
-  recentDealsItems[]{
-  image,
-  type,
-  location,
-  amount,
-  note,
-  ltc
-},
-  whyRscItems[]{
-  title,
-  description
-  },
-  faqItems[]{
-    question,
-    answer
-  },
-  loanPrograms[]{
-    title,
-    description
-  }
-  }`;
+}`;
 
-export const siteSettingsQuery = `*[_type == "siteSettings"][0]{
-  companyName,
-  primaryCtaText,
-  primaryCtaLink
+export const ourStoryPageQuery = `*[_type == "ourStoryPage"][0]{
+  pageTitle,
+  pageSubtitle,
+  heroImage,
+  sections[]{
+    title,
+    body,
+    image
+  },
+  testimonials[]{
+    quote,
+    author
+  }
+}`;
+
+export const loanProductsPageQuery = `*[_type == "loanProductsPage"][0]{
+  pageTitle,
+  pageSubtitle,
+  pageEyebrow,
+  heroImage,
+  productsSectionTitle,
+  productsSectionSubtitle,
+  products[]{
+    id,
+    title,
+    description,
+    details
+  },
+  calculatorTitle,
+  calculatorSubtitle,
+  contactSectionTitle,
+  contactSectionSubtitle
+}`;
+
+export const contactPageQuery = `*[_type == "contactPage"][0]{
+  pageTitle,
+  pageSubtitle,
+  heroEyebrow,
+  heroImage,
+  contactSectionTitle,
+  contactSectionSubtitle,
+  formDisclaimer,
+  officeTitle,
+  officeDescription
 }`;

@@ -99,6 +99,40 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'fundingProcessTitle',
+      title: 'Funding Process Title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'fundingProcessSubtitle',
+      title: 'Funding Process Subtitle',
+      type: 'text',
+    }),
+    defineField({
+      name: 'fundingProcessSteps',
+      title: 'Funding Process Steps',
+      type: 'array',
+      of: [
+        defineField({
+          name: 'fundingProcessStep',
+          title: 'Funding Process Step',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Title',
+              type: 'string',
+            }),
+            defineField({
+              name: 'description',
+              title: 'Description',
+              type: 'text',
+            }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
       name: 'recentDealsTitle',
       title: 'Recent Deals Title',
       type: 'string',
