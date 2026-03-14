@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   prefix: "",
   theme: {
     container: {
@@ -19,7 +19,7 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        
+
         // RSC Brand Colors
         navy: {
           DEFAULT: "hsl(var(--navy))",
@@ -43,7 +43,7 @@ export default {
           300: "hsl(var(--gray-300))",
           700: "hsl(var(--gray-700))",
         },
-        
+
         // Semantic tokens
         primary: {
           DEFAULT: "hsl(var(--primary))",
